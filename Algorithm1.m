@@ -1,6 +1,18 @@
 % Author: Andrew Dwyer
 % Final Project Algorithm 1
 
+% This algorithm decides to buy or sell stocks by taking the moving average
+% of n number of days and comparing the square of the difference between
+% the current stock price and the moving average. The square of the
+% difference is used to make dramatic changes impact the algorithm more. If
+% the square of the difference is greater or less than a certain percent 
+% difference, the stock is bought or sold. The stocks are looped through in
+% a randomized order to prevent certain stocks from always being bought or
+% sold and others not impacted. The algorithm also checks that the bank
+% account has sufficient funds to buy the stock, or the portfolio has the
+% shares needed to sell. Only one share of a stock is ever bought or sold 
+% on one day.
+
 clear, clc, close all
 format bank
 
@@ -74,28 +86,23 @@ end
 %% Graphs
 % graph the number of stocks in the portfolio over time creating a seperate
 % graph for each company
-f=figure(3); hold on
-% make the figure window bigger
-f.Position=[200 100 1200 700];
 for i=1:length(Companies)
-    subplot(5,6,i)
+    figure(ceil(i/7)+2), hold on
     d=(1+num_days_avg):delta_d:length(Dates);
     plot(Dates(d), portfolio_days(i,:)')
-    title(Companies(i,1))
+    ylabel('Num Stocks'), xlabel('Date');
 end
 
-% set up the axis to be one set of axis for the entire figure
-a=axes(f,'visible','off'); 
-a.XLabel.Visible='on';
-a.YLabel.Visible='on';
-ylabel(a,'Num Stocks');
-xlabel(a,'Date');
+figure(3), title("Companies 1-7"), legend(Companies(1:7,1)), ylim([0 max(portfolio_days, [], 'all')])
+figure(4), title("Companies 8-14"), legend(Companies(8:14,1)), ylim([0 max(portfolio_days, [], 'all')])
+figure(5), title("Companies 15-21"), legend(Companies(15:21,1)), ylim([0 max(portfolio_days, [], 'all')])
+figure(6), title("Companies 22-28"), legend(Companies(22:28,1)), ylim([0 max(portfolio_days, [], 'all')])
 
 %% Print Results
 fprintf("Bank: $%5.2f\n", bank)
 fprintf("Net Worth: $%5.2f\n", net_worth)
 fprintf("Num Stocks: %i\n", sum(portfolio))
-fprintf("%% Gain: %3.2f%%\n", (net_worth/bank_initial)*100)
+fprintf("%% Gain: %3.2f%%\n", (net_worth/bank_initial - 1)*100)
 
 %% Function Definitions
 function [trans_type, avg]=logic(prices, idate, num_days_avg, percent_window)
@@ -116,6 +123,7 @@ function [trans_type, avg]=logic(prices, idate, num_days_avg, percent_window)
 
     % compare the average vs percent of the moving mean
     trans_type=0;
+
     if(d2_price < -percent_window*avg) % then sell
         trans_type=-1;
     elseif(d2_price > percent_window*avg) % then buy
